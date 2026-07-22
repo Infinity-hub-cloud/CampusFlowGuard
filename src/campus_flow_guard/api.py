@@ -12,6 +12,7 @@ import yaml
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 from campus_flow_guard.inference import run as run_inference
 
@@ -28,12 +29,35 @@ def _read_yaml(path: Path) -> dict[str, Any]:
 
 def _api_response(inference_document: dict[str, Any], sample_limit: int) -> dict[str, Any]:
     summary = inference_document["detection_summary"]
+    detections = list(inference_document["detections"])
+    metadata = inference_document.get("metadata", {})
+    window_count = int(summary["window_count"])
+    attack_count = int(summary["detected_attack_count"])
+    probabilities = [float(item["attack_probability"]) for item in detections]
+    model_name = str(metadata.get("model", "CampusFlowGuard"))
+    model_seed = metadata.get("model_seed")
+    model_version = f"{model_name} · Seed {model_seed}" if model_seed is not None else model_name
     return {
         "total_flows": int(summary["input_row_count"]),
-        "evaluated_windows": int(summary["window_count"]),
-        "attack_count": int(summary["detected_attack_count"]),
+        "evaluated_windows": window_count,
+        "attack_count": attack_count,
+        "attack_ratio": float(
+            summary.get("detected_attack_ratio", attack_count / window_count if window_count else 0.0)
+        ),
+        "maximum_attack_probability": summary.get(
+            "maximum_attack_probability", max(probabilities, default=None)
+        ),
+        "mean_attack_probability": summary.get(
+            "mean_attack_probability",
+            sum(probabilities) / len(probabilities) if probabilities else None,
+        ),
         "risk_level_counts": dict(summary["risk_level_counts"]),
-        "sample_predictions": list(inference_document["detections"][:sample_limit]),
+        "model_version": model_version,
+        "decision_threshold": summary.get(
+            "decision_threshold",
+            detections[0].get("decision_threshold") if detections else None,
+        ),
+        "sample_predictions": detections[:sample_limit],
     }
 
 
@@ -59,7 +83,9 @@ def create_app(
         version="0.1.0",
         description="Local defensive CSV inference only; no external API calls.",
     )
-    html_path = Path(__file__).resolve().parent / "static" / "index.html"
+    static_directory = Path(__file__).resolve().parent / "static"
+    html_path = static_directory / "index.html"
+    app.mount("/static", StaticFiles(directory=static_directory), name="static")
 
     @app.get("/", response_class=HTMLResponse)
     async def index() -> str:
@@ -91,7 +117,10 @@ def create_app(
         except HTTPException:
             raise
         except (ValueError, FileNotFoundError, KeyError) as exc:
-            raise HTTPException(status_code=422, detail=str(exc)) from exc
+            raise HTTPException(
+                status_code=422,
+                detail="CSV 无法完成检测，请确认字段完整、格式正确且模型资源可用。",
+            ) from exc
         finally:
             if temporary_path is not None:
                 temporary_path.unlink(missing_ok=True)

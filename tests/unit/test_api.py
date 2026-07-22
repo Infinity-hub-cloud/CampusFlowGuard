@@ -16,6 +16,7 @@ if str(SRC_ROOT) not in sys.path:
 
 try:
     from fastapi.testclient import TestClient
+
     from campus_flow_guard.api import create_app
 except ImportError:
     TestClient = None
@@ -47,10 +48,18 @@ class LocalApiTests(unittest.TestCase):
         def fake_inference(_config_path: Path, input_path: Path) -> dict:
             self.assertTrue(input_path.is_file())
             return {
+                "metadata": {
+                    "model": "Focal Loss Record Projection Transformer",
+                    "model_seed": 20260717,
+                },
                 "detection_summary": {
                     "input_row_count": 8,
                     "window_count": 1,
                     "detected_attack_count": 1,
+                    "detected_attack_ratio": 1.0,
+                    "maximum_attack_probability": 0.8,
+                    "mean_attack_probability": 0.8,
+                    "decision_threshold": 0.7751080393791199,
                     "risk_level_counts": {"Low": 0, "Medium": 1, "High": 0},
                 },
                 "detections": [
@@ -71,7 +80,17 @@ class LocalApiTests(unittest.TestCase):
     def test_index_serves_upload_page(self) -> None:
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
-        self.assertIn("上传", response.text)
+        self.assertIn("上传检测文件", response.text)
+        self.assertIn("Local Processing", response.text)
+        self.assertNotIn("https://", response.text)
+
+    def test_local_static_assets_are_served(self) -> None:
+        stylesheet = self.client.get("/static/styles.css")
+        script = self.client.get("/static/app.js")
+        self.assertEqual(stylesheet.status_code, 200)
+        self.assertEqual(script.status_code, 200)
+        self.assertIn("--background", stylesheet.text)
+        self.assertIn("textContent", script.text)
 
     def test_predict_returns_required_summary(self) -> None:
         response = self.client.post(
@@ -82,6 +101,14 @@ class LocalApiTests(unittest.TestCase):
         data = response.json()
         self.assertEqual(data["total_flows"], 8)
         self.assertEqual(data["attack_count"], 1)
+        self.assertEqual(data["attack_ratio"], 1.0)
+        self.assertEqual(data["maximum_attack_probability"], 0.8)
+        self.assertEqual(data["mean_attack_probability"], 0.8)
+        self.assertAlmostEqual(data["decision_threshold"], 0.7751080393791199)
+        self.assertEqual(
+            data["model_version"],
+            "Focal Loss Record Projection Transformer · Seed 20260717",
+        )
         self.assertEqual(data["risk_level_counts"]["Medium"], 1)
         self.assertEqual(len(data["sample_predictions"]), 1)
 
