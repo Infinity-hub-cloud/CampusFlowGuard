@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CampusFlowGuard 本地检测</title>
+  <style>
+    body { max-width: 960px; margin: 40px auto; padding: 0 20px; font-family: system-ui, sans-serif; color: #172033; }
+    form, section { border: 1px solid #d8deea; border-radius: 10px; padding: 18px; margin-bottom: 18px; }
+    button { margin-left: 10px; padding: 7px 14px; cursor: pointer; }
+    .summary { display: flex; gap: 14px; flex-wrap: wrap; }
+    .card { background: #f4f7fb; border-radius: 8px; padding: 10px 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border-bottom: 1px solid #e1e5ed; padding: 8px; text-align: left; }
+    .error { color: #a6192e; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>CampusFlowGuard 本地检测</h1>
+  <p>上传包含模型所需特征列的 CSV。数据仅发送到本机服务，不调用外部 API。</p>
+  <form id="upload-form">
+    <input id="csv-file" name="file" type="file" accept=".csv,text/csv" required>
+    <button type="submit">开始检测</button>
+  </form>
+  <p id="status" role="status"></p>
+  <section id="result" hidden>
+    <h2>检测汇总</h2>
+    <div id="summary" class="summary"></div>
+    <h2>样本预测</h2>
+    <table>
+      <thead><tr><th>目标行</th><th>攻击概率</th><th>是否告警</th><th>风险等级</th></tr></thead>
+      <tbody id="predictions"></tbody>
+    </table>
+  </section>
+  <script>
+    const form = document.getElementById('upload-form');
+    const statusNode = document.getElementById('status');
+    const resultNode = document.getElementById('result');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      statusNode.className = '';
+      statusNode.textContent = '正在检测…';
+      resultNode.hidden = true;
+      const body = new FormData();
+      body.append('file', document.getElementById('csv-file').files[0]);
+      try {
+        const response = await fetch('/predict', { method: 'POST', body });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || '检测失败');
+        const summary = document.getElementById('summary');
+        summary.replaceChildren();
+        const values = [
+          ['总流量数', data.total_flows],
+          ['评估窗口', data.evaluated_windows],
+          ['攻击数量', data.attack_count],
+          ['风险统计', JSON.stringify(data.risk_level_counts)]
+        ];
+        for (const [label, value] of values) {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.textContent = `${label}: ${value}`;
+          summary.appendChild(card);
+        }
+        const tableBody = document.getElementById('predictions');
+        tableBody.replaceChildren();
+        for (const item of data.sample_predictions) {
+          const row = document.createElement('tr');
+          for (const value of [item.target_row_number, item.attack_probability.toFixed(6), item.detected_attack ? '是' : '否', item.risk_level]) {
+            const cell = document.createElement('td');
+            cell.textContent = value;
+            row.appendChild(cell);
+          }
+          tableBody.appendChild(row);
+        }
+        statusNode.textContent = '检测完成';
+        resultNode.hidden = false;
+      } catch (error) {
+        statusNode.className = 'error';
+        statusNode.textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+version: 1
+
+labels:
+  low: Low
+  medium: Medium
+  high: High
+
+boundaries:
+  medium_starts_at: decision_threshold
+  high_cutoff_strategy: fraction_of_remaining_probability_range
+  high_cutoff_fraction: 0.75
+  decision_threshold_is_medium: true
+  high_cutoff_is_high: true
+
+threshold_source:
+  default_policy: validation_f1_max
+
+example:
+  seed: 20260717
+  probabilities: [0.20, 0.80, 0.95]
+  output_path: artifacts/examples/risk_level_examples.json

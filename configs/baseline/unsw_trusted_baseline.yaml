@@ -1,0 +1,44 @@
+run:
+  name: unsw_trusted_baseline_v1
+  split_seed: 20260715
+  selection_seed: 20260715
+  model_seeds: [20260715, 20260716, 20260717]
+
+data:
+  csv_path: D:/Users/LENOVO/Desktop/AI_safety_competition_data/raw/NF-UNSW-NB15-v2.csv
+  schema_path: configs/datasets/dataset_schema.yaml
+  pool_size: 120000
+  train_fraction: 0.80
+  validation_fraction: 0.10
+  test_fraction: 0.10
+  read_chunk_size: 100000
+
+model:
+  input_encoding: record_projection
+  classification_head: last_token
+  window_size: 8
+  transformer_layers: 2
+  num_heads: 2
+  internal_size: 128
+  categorical_embedding_dim: 4
+  mlp_units: 64
+  dropout: 0.10
+
+comparison:
+  methods: [none, class_weight, balanced_sampling]
+  epochs: 1
+  batch_size: 256
+  steps_per_epoch: 32
+  threshold: 0.50
+
+training:
+  max_epochs: 6
+  batch_size: 256
+  steps_per_epoch: 128
+  learning_rate: 0.001
+  early_stopping_patience: 2
+  threshold_selection: validation_max_f1
+
+outputs:
+  artifacts_dir: artifacts
+  logs_dir: logs

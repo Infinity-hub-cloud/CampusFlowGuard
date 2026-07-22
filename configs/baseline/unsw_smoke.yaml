@@ -1,0 +1,35 @@
+# Smoke-only configuration: not a reportable baseline experiment.
+run:
+  name: unsw_smoke_seed20260715
+  seed: 20260715
+
+data:
+  csv_path: D:/Users/LENOVO/Desktop/AI_safety_competition_data/raw/NF-UNSW-NB15-v2.csv
+  schema_path: configs/datasets/dataset_schema.yaml
+  start_row: 1100000
+  max_rows: 60000
+  train_fraction: 0.70
+  validation_fraction: 0.15
+  test_fraction: 0.15
+
+window:
+  size: 8
+
+model:
+  categorical_embedding_dim: 4
+  model_dim: 32
+  num_heads: 2
+  transformer_layers: 1
+  dropout: 0.10
+  mlp_units: 16
+
+training:
+  epochs: 1
+  batch_size: 64
+  steps_per_epoch: 16
+  learning_rate: 0.001
+  threshold: 0.50
+
+outputs:
+  artifacts_dir: artifacts
+  logs_dir: logs

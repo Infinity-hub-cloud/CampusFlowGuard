@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments and packaging
+.venv/
+venv/
+env/
+*.egg-info/
+build/
+dist/
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Data must remain local
+data/**
+!data/README.md
+
+# Generated logs and artifacts
+logs/**
+!logs/.gitkeep
+artifacts/**
+!artifacts/.gitkeep
+
+# Experiment outputs; metadata and documentation remain trackable
+experiments/**/runs/
+experiments/**/outputs/
+
+# Common model and capture formats
+*.keras
+*.h5
+*.ckpt
+*.onnx
+*.pt
+*.pth
+*.pcap
+*.pcapng
+*.feather
+*.parquet

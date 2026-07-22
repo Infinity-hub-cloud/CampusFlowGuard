@@ -1,0 +1,26 @@
+run:
+  name: local_focal_inference_v1
+
+model:
+  seed: 20260717
+  selection_metric: validation_pr_auc
+  selection_metric_value: 0.9758473634719849
+  weights_path: artifacts/experiments/focal_loss/unsw_focal_loss_v1/models/seed20260717.weights.h5
+  weights_sha256: 26e21e79fe5bb3d646a9749debfc178b600311e5931f8401ce993fbd1d8b768c
+  focal_experiment_result: artifacts/experiments/focal_loss/unsw_focal_loss_v1/focal_experiment.json
+  focal_training_log: artifacts/experiments/focal_loss/unsw_focal_loss_v1/logs/seed20260717.csv
+
+preprocessing:
+  artifact_path: artifacts/baseline_freeze/unsw_trusted_baseline_v1/models/preprocessing.pkl
+  artifact_sha256: 63750ec567df260457ed8caceebd6514e049a62434ee7ffb0d6d715d43a25505
+  model_config_path: artifacts/baseline_freeze/unsw_trusted_baseline_v1/config/executed_config.yaml
+
+decision:
+  threshold: 0.7751080393791199
+  threshold_source: validation_f1_max
+  risk_mapping_path: configs/risk/risk_mapping.yaml
+
+inference:
+  window_size: 8
+  batch_size: 512
+  target_position: last_row

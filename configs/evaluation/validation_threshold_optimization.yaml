@@ -1,0 +1,12 @@
+run:
+  name: unsw_trusted_baseline_v1_thresholds
+  frozen_baseline_dir: artifacts/baseline_freeze/unsw_trusted_baseline_v1
+
+threshold_search:
+  minimum: 0.0
+  maximum: 1.0
+  step: 0.001
+  far_limit: 0.005
+
+outputs:
+  directory: artifacts/threshold_optimization/unsw_trusted_baseline_v1

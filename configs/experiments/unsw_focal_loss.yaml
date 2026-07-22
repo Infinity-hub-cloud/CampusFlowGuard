@@ -1,0 +1,13 @@
+run:
+  name: unsw_focal_loss_v1
+  frozen_baseline_dir: artifacts/baseline_freeze/unsw_trusted_baseline_v1
+
+loss:
+  name: binary_focal_crossentropy
+  gamma: 2.0
+  apply_class_balancing: false
+  alpha: 0.25
+  from_logits: false
+
+outputs:
+  directory: artifacts/experiments/focal_loss/unsw_focal_loss_v1

@@ -1,0 +1,12 @@
+run:
+  name: campus_flow_guard_local_demo
+  host: 127.0.0.1
+  port: 8000
+
+inference:
+  config_path: configs/inference/local_focal.yaml
+
+upload:
+  maximum_size_mib: 20
+  sample_prediction_limit: 20
+  allowed_suffixes: [.csv]

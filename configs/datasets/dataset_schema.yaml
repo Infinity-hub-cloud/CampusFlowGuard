@@ -1,0 +1,75 @@
+# Schema derived from the original unified_flow_format specification.
+# The raw dataset is not present in the repository or in the external data root
+# at the time this file was created.
+dataset_name: UNSW_NB15
+file_format: csv
+
+# The original code receives one CSV and creates a LastRows evaluation split.
+# These are intentionally null: no train-only or test-only file is claimed.
+train_file: null
+test_file: null
+source_file: null
+source_filename: NF-UNSW-NB15-v2.csv
+source_file_status: not_present_at_schema_creation
+split_strategy: last_rows
+evaluation_percent: 0.025
+
+feature_columns:
+  - NUM_PKTS_UP_TO_128_BYTES
+  - SRC_TO_DST_SECOND_BYTES
+  - OUT_PKTS
+  - OUT_BYTES
+  - NUM_PKTS_128_TO_256_BYTES
+  - DST_TO_SRC_AVG_THROUGHPUT
+  - DURATION_IN
+  - L4_SRC_PORT
+  - ICMP_TYPE
+  - PROTOCOL
+  - SERVER_TCP_FLAGS
+  - IN_PKTS
+  - NUM_PKTS_512_TO_1024_BYTES
+  - CLIENT_TCP_FLAGS
+  - TCP_WIN_MAX_IN
+  - NUM_PKTS_256_TO_512_BYTES
+  - SHORTEST_FLOW_PKT
+  - MIN_IP_PKT_LEN
+  - LONGEST_FLOW_PKT
+  - L4_DST_PORT
+  - MIN_TTL
+  - DST_TO_SRC_SECOND_BYTES
+  - NUM_PKTS_1024_TO_1514_BYTES
+  - DURATION_OUT
+  - FLOW_DURATION_MILLISECONDS
+  - TCP_FLAGS
+  - MAX_TTL
+  - SRC_TO_DST_AVG_THROUGHPUT
+  - ICMP_IPV4_TYPE
+  - MAX_IP_PKT_LEN
+  - RETRANSMITTED_OUT_BYTES
+  - IN_BYTES
+  - RETRANSMITTED_IN_BYTES
+  - TCP_WIN_MAX_OUT
+  - L7_PROTO
+  - RETRANSMITTED_OUT_PKTS
+  - RETRANSMITTED_IN_PKTS
+
+categorical_columns:
+  - CLIENT_TCP_FLAGS
+  - L4_SRC_PORT
+  - TCP_FLAGS
+  - ICMP_IPV4_TYPE
+  - ICMP_TYPE
+  - PROTOCOL
+  - SERVER_TCP_FLAGS
+  - L4_DST_PORT
+  - L7_PROTO
+
+label_column: Attack
+benign_label: Benign
+time_column: null
+test_column: null
+
+notes:
+  - The original specification does not define a timestamp or ordering column.
+  - The original implementation assumes row order for LastRows and sliding windows.
+  - The source URL and file hash require confirmation before a real experiment.

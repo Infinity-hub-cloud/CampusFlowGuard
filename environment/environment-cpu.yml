@@ -1,0 +1,9 @@
+name: campus-flow-guard-cpu
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11.9
+  - pip=24.3.1
+  - pip:
+      - -r environment/requirements-dev.txt
