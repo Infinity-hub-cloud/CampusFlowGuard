@@ -1,0 +1,31 @@
+run:
+  name: unsw_classical_baselines_v1
+  frozen_baseline_dir: artifacts/baseline_freeze/unsw_trusted_baseline_v1
+  model_seeds: [20260715, 20260716, 20260717]
+
+data:
+  csv_path: D:/Users/LENOVO/Desktop/AI_safety_competition_data/raw/NF-UNSW-NB15-v2.csv
+  schema_path: configs/datasets/dataset_schema.yaml
+  window_size: 8
+  read_chunk_size: 100000
+
+models:
+  logistic_regression:
+    max_iter: 250
+    c: 1.0
+    solver: lbfgs
+    class_weight: balanced
+  random_forest:
+    n_estimators: 120
+    max_depth: 18
+    min_samples_leaf: 2
+    max_features: sqrt
+    class_weight: balanced_subsample
+    n_jobs: -1
+
+evaluation:
+  threshold_selection: validation_max_f1
+  test_evaluation: once_after_validation_selection
+
+outputs:
+  directory: artifacts/experiments/classical_baselines/unsw_classical_baselines_v1
